@@ -45,7 +45,7 @@ docker-compose up --build
 ```
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3000/api (proxied via Nginx)
+- **Backend API**: http://localhost:3000/api (proxied through Nginx — not directly exposed)
 - **DB Viewer (sqlite-web)**: http://localhost:8080
 
 ### 4. Demo credentials (auto-seeded)
@@ -94,6 +94,9 @@ docker-compose down -v       # stops + wipes the SQLite volume
 │    DELETE /api/leaves/:id       → withdraw pending leave           │
 │                                                                     │
 │  Middleware: cors → morgan (logging) → authenticate → route handler│
+│                                                                     │
+│  ⚠️  Port 5000 is internal only — not exposed to the host.        │
+│     All API traffic enters via Nginx at localhost:3000/api         │
 └───────────────────────────────────┬─────────────────────────────────┘
                                     │ better-sqlite3 (synchronous)
                                     ▼
