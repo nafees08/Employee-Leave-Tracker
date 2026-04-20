@@ -46,6 +46,7 @@ docker-compose up --build
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:3000/api (proxied via Nginx)
+- **DB Viewer (sqlite-web)**: http://localhost:8080
 
 ### 4. Demo credentials (auto-seeded)
 
@@ -102,6 +103,12 @@ docker-compose down -v       # stops + wipes the SQLite volume
 │  Tables:  users (id, name, email, password_hash, role)             │
 │           leaves (id, user_id FK, type, start_date, end_date,      │
 │                   reason, status, created_at, updated_at)          │
+└─────────────────────────────────────────────────────────────────────┘
+                    │ also mounted by
+                    ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  Docker: sqlite-web container (Flask on port 8080)                 │
+│  Live DB browser → http://localhost:8080                           │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -220,7 +227,10 @@ leave-tracker/
 │   ├── Dockerfile
 │   └── package.json
 │
-├── docker-compose.yml            # Orchestrates both containers
+├── docker-compose.yml            # Orchestrates all three containers
+│                                 #   frontend → :3000
+│                                 #   backend  → internal :5000
+│                                 #   sqlite-web (DB viewer) → :8080
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -258,6 +268,12 @@ Separating frontend and backend into independent containers follows the microser
 - Stage 1: `node:20-alpine` runs `npm run build` to produce optimised static files.
 - Stage 2: `nginx:alpine` serves those files and proxies `/api/*` → `backend:5000`.
 - Nginx uses Docker's internal DNS to resolve the service name `backend`.
+
+### `sqlite-web` container
+- Runs [sqlite-web](https://github.com/coleifer/sqlite-web), a lightweight browser-based SQLite viewer.
+- Mounts the **same `sqlite_data` volume** as the backend, so it reads the live database file directly — no file copying needed.
+- Accessible at **http://localhost:8080** while the stack is running.
+- Use it to monitor registrations, leave requests, approvals, and rejections in real-time.
 
 ### `depends_on` with health check
 `frontend` waits for `backend` to pass its health check (`GET /api/health`) before starting Nginx, ensuring the API is ready before the first browser request arrives.
