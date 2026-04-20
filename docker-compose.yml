@@ -33,6 +33,23 @@ services:
       start_period: 15s
     stop_grace_period: 10s
 
+  sqlite-web:
+    image: coleifer/sqlite-web
+    container_name: sqlite_web_ui
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - sqlite_data:/data
+    environment:
+      SQLITE_DATABASE: /data/leave_tracker.db
+    entrypoint: ["sqlite_web", "-H", "0.0.0.0", "-p", "8080", "/data/leave_tracker.db"]
+    networks:
+      - app_network
+    depends_on:
+      backend:
+        condition: service_healthy
+
   frontend:
     build:
       context: ./frontend
