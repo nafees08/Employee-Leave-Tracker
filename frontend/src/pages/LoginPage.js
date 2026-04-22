@@ -64,10 +64,6 @@ export default function LoginPage() {
         <p className="auth-hint">
           No account? <Link to="/register">Register here</Link>
         </p>
-        <div className="demo-hint">
-          <strong>Demo:</strong> admin@company.com / password123<br />
-          <strong>Employee:</strong> alice@company.com / password123
-        </div>
       </div>
     </div>
   );
